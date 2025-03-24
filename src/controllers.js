@@ -6,7 +6,7 @@ const getAllKegiatan = async (req, res) => {
         const kegiatan = await Kegiatan.find();
         res.json(kegiatan);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ message: 'Gagal memuat semua kegiatan' });
     }
 };
 
@@ -18,7 +18,7 @@ const createKegiatan = async (req, res) => {
         await kegiatan.save();
         res.status(201).json(kegiatan);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: 'Gagal membuat kegiatan baru' });
     }
 };
 
@@ -34,7 +34,7 @@ const updateKegiatan = async (req, res) => {
         );
         res.json(kegiatan);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: 'Gagal update kegiatan. Id kegiatan tidak ditemukan' });
     }
 };
 
@@ -43,7 +43,21 @@ const deleteKegiatan = async (req, res) => {
     try {
         const { id } = req.params;
         await Kegiatan.findByIdAndDelete(id);
-        res.json({ message: 'Kegiatan deleted successfully' });
+        res.json({ message: 'Kegiatan Berhasil Dihapus' });
+    } catch (error) {
+        res.status(500).json({ message: 'Gagal menghapus kegiatan. Id kegiatan tidak ditemukan' });
+    }
+};
+
+// Find kegiatan by nama
+const findKegiatan = async (req, res) => {
+    try {
+        const { nama } = req.query;
+        const kegiatan = await Kegiatan.find({ nama: { $regex: nama, $options: 'i' } });
+        if (kegiatan.length === 0) {
+            return res.status(500).json({ message: `Kegiatan dengan nama: '${nama}' tidak ditemukan` });
+        }
+        res.json(kegiatan);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -53,5 +67,6 @@ module.exports = {
     getAllKegiatan,
     createKegiatan,
     updateKegiatan,
-    deleteKegiatan
+    deleteKegiatan,
+    findKegiatan
 };
